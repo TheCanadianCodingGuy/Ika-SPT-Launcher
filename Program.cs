@@ -104,10 +104,13 @@ class Program
                             {
                                 //Launch apps minimized, or not.
                                 string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
+                                var filePath = @$"""{app.FilePath}""";
                                 ProcessStartInfo startInfo = new()
                                 {
-                                    FileName = "cmd.exe",
-                                    Arguments = $"/c start {minSwitch} {app.FilePath}",
+                                    FileName = app.FilePath,
+                                    Arguments = minSwitch,
+                                    UseShellExecute = true,
+                                    CreateNoWindow = false,
                                     WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
                                 };
                                 Process.Start(startInfo);
