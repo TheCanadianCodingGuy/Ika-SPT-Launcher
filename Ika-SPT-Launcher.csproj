@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>appicon.ico</ApplicationIcon>
-    <Version>1.0.0.1</Version>
+    <Version>1.0.1</Version>
     <Authors>Ikaras</Authors>
   </PropertyGroup>
 

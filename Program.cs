@@ -228,12 +228,12 @@ class Program
     {
         Assembly? assembly = Assembly.GetEntryAssembly();
         AssemblyName? assemblyName = assembly?.GetName();
-        Version? version = assemblyName?.Version;
-
-        if (version != null)
+        string? version = assemblyName?.Version?.ToString();
+        version ??= "0.0.0.0";
+        int lastPeriodIndex = version.LastIndexOf('.');
+        if (lastPeriodIndex != -1)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} v{version}");
+            Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} v{version[..lastPeriodIndex]}");
             Console.ResetColor();
         }
     }
