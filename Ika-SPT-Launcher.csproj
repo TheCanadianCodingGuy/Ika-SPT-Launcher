@@ -6,7 +6,7 @@
     <RootNamespace>Ika_SPT_Launcher</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>appicon.ico</ApplicationIcon>
     <Version>1.0.0.0</Version>
     <Authors>Ikaras</Authors>
   </PropertyGroup>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="icon.ico" />
+    <Content Include="appicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
