@@ -102,12 +102,8 @@ class Program
                             }
                             else
                             {
-                                //Launcher will never start minimized
-                                if (app.Type == AppType.Launcher)
-                                {
-                                    Process.Start(app.FilePath);
-                                }
-                                else
+                                //Launch apps minimized, or not.
+                                if (app.LaunchMinimized)
                                 {
                                     ProcessStartInfo startInfo = new()
                                     {
@@ -116,6 +112,10 @@ class Program
                                         WindowStyle = ProcessWindowStyle.Hidden
                                     };
                                     Process.Start(startInfo);
+                                }
+                                else
+                                {
+                                    Process.Start(app.FilePath);
                                 }
 
                                 if (app.Type == AppType.Server)
