@@ -31,7 +31,7 @@ class Program
                         ServerWaitTimeInSeconds = DEAULT_SERVER_WAIT_TIME,
                         ServerFile = DEFAULT_SERVER_FILE,
                         LauncherFile = DEFAULT_LAUNCHER_FILE,
-                        ExternalApps = [new ExternalApp { File=string.Empty, LaunchMinimized=true }]
+                        ExternalApps = [new ExternalApp { File = string.Empty, LaunchMinimized = true }]
                     };
 
                     string newConfigJson = JsonConvert.SerializeObject(config, Formatting.Indented);
@@ -103,20 +103,14 @@ class Program
                             else
                             {
                                 //Launch apps minimized, or not.
-                                if (app.LaunchMinimized)
+                                string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
+                                ProcessStartInfo startInfo = new()
                                 {
-                                    ProcessStartInfo startInfo = new()
-                                    {
-                                        FileName = "cmd.exe",
-                                        Arguments = $"/c start /min {app.FilePath}",
-                                        WindowStyle = ProcessWindowStyle.Hidden
-                                    };
-                                    Process.Start(startInfo);
-                                }
-                                else
-                                {
-                                    Process.Start(app.FilePath);
-                                }
+                                    FileName = "cmd.exe",
+                                    Arguments = $"/c start {minSwitch} {app.FilePath}",
+                                    WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
+                                };
+                                Process.Start(startInfo);
 
                                 if (app.Type == AppType.Server)
                                 {
