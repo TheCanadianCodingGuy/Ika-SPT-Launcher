@@ -31,7 +31,7 @@ class Program
                         ServerWaitTimeInSeconds = DEAULT_SERVER_WAIT_TIME,
                         ServerFile = DEFAULT_SERVER_FILE,
                         LauncherFile = DEFAULT_LAUNCHER_FILE,
-                        ExternalApps = []
+                        ExternalApps = [new ExternalApp { File=string.Empty, LaunchMinimized=true }]
                     };
 
                     string newConfigJson = JsonConvert.SerializeObject(config, Formatting.Indented);
@@ -211,16 +211,17 @@ class Program
     {
         List<App> apps =
         [
-            new App{ FilePath = config.ServerFile, Type = AppType.Server },
-            new App{ FilePath = config.LauncherFile, Type = AppType.Launcher }
+            new App{ FilePath = config.ServerFile, Type = AppType.Server, LaunchMinimized = true },
+            new App{ FilePath = config.LauncherFile, Type = AppType.Launcher, LaunchMinimized = false }
         ];
 
-        foreach (string app in config.ExternalApps)
+        foreach (ExternalApp app in config.ExternalApps.Where(x => !string.IsNullOrWhiteSpace(x.File)))
         {
             apps.Add(new App
             {
-                FilePath = app,
-                Type = AppType.External
+                FilePath = app.File,
+                Type = AppType.External,
+                LaunchMinimized = app.LaunchMinimized
             });
         }
         return apps;
