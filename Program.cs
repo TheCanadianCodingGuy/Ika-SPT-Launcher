@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using Ika_SPT_Launcher;
+using Ika_SPT_Launcher.Models;
 using Newtonsoft.Json;
+using ConfigHandler;
 
 class Program
 {
@@ -9,15 +10,16 @@ class Program
     {
         List<string> configErrors = [];
         Config? config = new();
-
-        //Config Info
         string config_file = $"{AppDomain.CurrentDomain.FriendlyName}.config.json";
+        var handler = new ConfigurationHandler();
+
+        //var test = handler.CheckIfConfigFileExists(config_file);
+        var test = handler.ValidateConfigJsonFile(config_file);
+        //Config Info
         int DEAULT_SERVER_WAIT_TIME = 10;
         string DEFAULT_SERVER_FILE = "Aki.Server.exe";
         string DEFAULT_LAUNCHER_FILE = "Aki.Launcher.exe";
-
         DisplayAppVersion();
-
         try
         {
             //Check if app location is in SPT directory
@@ -91,14 +93,14 @@ class Program
                         if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
                         {
                             Console.WriteLine($"{app.FilePath} is already running, Skipping...");
-                            app.Status = AppStatus.AlreadyLaunched;
+                            app.Status = AppStatusEnum.AlreadyLaunched;
                         }
                         else
                         {
                             if (!File.Exists(app.FilePath))
                             {
                                 Console.WriteLine($"\"{app.FilePath}\" was not found. Skipping...");
-                                app.Status = AppStatus.NotFound;
+                                app.Status = AppStatusEnum.NotFound;
                             }
                             else
                             {
@@ -115,7 +117,7 @@ class Program
                                 };
                                 Process.Start(startInfo);
 
-                                if (app.Type == AppType.Server)
+                                if (app.Type == AppTypeEnum.Server)
                                 {
                                     Console.ForegroundColor = ConsoleColor.DarkGray;
                                     Console.WriteLine($"Waiting {config.ServerWaitTimeInSeconds} seconds for {app.FilePath} to finish initializing...");
@@ -124,7 +126,7 @@ class Program
                                     Thread.Sleep(config.ServerWaitTimeInSeconds * 1000);
                                 }
                                 Console.WriteLine($"{app.FilePath} launched!");
-                                app.Status = AppStatus.Launched;
+                                app.Status = AppStatusEnum.Launched;
                             }
                         }
                     }
@@ -150,9 +152,9 @@ class Program
 
     private static void SuccessEnd(List<App> apps)
     {
-        List<App> appsLaunched = apps.Where(x => x.Status == AppStatus.Launched).ToList();
-        List<App> appsAlreadyLaunched = apps.Where(x => x.Status == AppStatus.AlreadyLaunched).ToList();
-        List<App> appsNotFound = apps.Where(x => x.Status == AppStatus.NotFound).ToList();
+        List<App> appsLaunched = apps.Where(x => x.Status == AppStatusEnum.Launched).ToList();
+        List<App> appsAlreadyLaunched = apps.Where(x => x.Status == AppStatusEnum.AlreadyLaunched).ToList();
+        List<App> appsNotFound = apps.Where(x => x.Status == AppStatusEnum.NotFound).ToList();
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(string.Empty);
@@ -208,8 +210,8 @@ class Program
     {
         List<App> apps =
         [
-            new App{ FilePath = config.ServerFile, Type = AppType.Server, LaunchMinimized = true },
-            new App{ FilePath = config.LauncherFile, Type = AppType.Launcher, LaunchMinimized = false }
+            new App{ FilePath = config.ServerFile, Type = AppTypeEnum.Server, LaunchMinimized = true },
+            new App{ FilePath = config.LauncherFile, Type = AppTypeEnum.Launcher, LaunchMinimized = false }
         ];
 
         foreach (ExternalApp app in config.ExternalApps.Where(x => !string.IsNullOrWhiteSpace(x.File)))
@@ -217,7 +219,7 @@ class Program
             apps.Add(new App
             {
                 FilePath = app.File,
-                Type = AppType.External,
+                Type = AppTypeEnum.External,
                 LaunchMinimized = app.LaunchMinimized
             });
         }

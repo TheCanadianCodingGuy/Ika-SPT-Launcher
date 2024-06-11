@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>appicon.ico</ApplicationIcon>
-    <Version>1.0.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Ikaras</Authors>
   </PropertyGroup>
 
@@ -25,12 +25,11 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Config.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
+    <ProjectReference Include="..\ConfigHandler\ConfigHandler.csproj" />
   </ItemGroup>
 
 </Project>

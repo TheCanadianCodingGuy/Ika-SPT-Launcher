@@ -1,0 +1,11 @@
+{
+  "ServerWaitTimeInSeconds": 10,
+  "ServerFile": "Aki.Server.exe",
+  "LauncherFile": "Aki.Launcher.exe",
+  "ExternalApps": [
+    {
+      "File": "",
+      "LaunchMinimized": true
+    }
+  ]
+}
