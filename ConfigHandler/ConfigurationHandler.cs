@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Data;
 using System.Reflection;
 
 namespace ConfigHandler
@@ -8,7 +10,7 @@ namespace ConfigHandler
         private static bool isConfigSet = false;
         private static AppConfiguration config = new();
         private static ConfigurationHandlerReturnModel returnModel = new();
-        private static readonly string CONFIG_FILE_PATH = @$"C:\Test\{AppDomain.CurrentDomain.FriendlyName}.config.json";
+        private static readonly string CONFIG_FILE_PATH = @$"C:\SPT\{AppDomain.CurrentDomain.FriendlyName}.config.json";
 
         public static string GetConfigFilePath()
         {
@@ -120,7 +122,6 @@ namespace ConfigHandler
                             if (resultExist.Item1.IsSuccess)
                             {
                                 config = resultCreate.Item2;
-                                config.LauncherFilePath = "bruh";
                                 isConfigSet = true;
                             }
                             else
@@ -152,6 +153,41 @@ namespace ConfigHandler
         {
             returnModel.IsSuccess = false;
             returnModel.Message = message;
+        }
+
+        //TODO: if corrupted, warn user and remake config
+        public static Tuple<ConfigurationHandlerReturnModel, List<double>> CheckIfConfigurationIsLatestRevision()
+        {
+            InitializeStatusForSuccess();
+            List<double> requiredRevisions = [];
+            try
+            {
+                string configFileJson = File.ReadAllText(CONFIG_FILE_PATH);
+                JObject jsonObject = JObject.Parse(configFileJson);
+
+                if (jsonObject.ContainsKey("ConfigurationRevision"))
+                {
+                    double configurationRevisionValue = jsonObject["ConfigurationRevision"].Value<double>();
+
+                    if (RevisionHistory.Revisions.Any(s => s == configurationRevisionValue))
+                    {
+                        requiredRevisions = RevisionHistory.Revisions.Where(d => d > configurationRevisionValue).ToList();
+                    }
+                    else
+                    {
+                        SetFailureStatus($"{CONFIG_FILE_PATH} contains an invalid revision.");
+                    }
+                }
+                else
+                {
+                    requiredRevisions = RevisionHistory.Revisions;
+                }
+            }
+            catch (Exception ex)
+            {
+                SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: {ex.Message}");
+            }
+            return new Tuple<ConfigurationHandlerReturnModel, List<double>>(returnModel, requiredRevisions);
         }
     }
 }

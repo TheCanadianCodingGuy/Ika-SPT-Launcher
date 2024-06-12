@@ -9,13 +9,8 @@ class Program
     {
         //TODO: DO BACKWARD COMPATIBILITY FOR OLD CONFIGS
         DisplayAppVersion();
-        //var result = ConfigurationHandler.CheckIfConfigFileExists();
-        //var result = ConfigurationHandler.CreateNewDefaultConfigFile();
-        //var result = ConfigurationHandler.GetAppConfiguration();
-        //var result = ConfigurationHandler.GetConfigFilePath();
-        //var result = ConfigurationHandler.LoadConfigFile();
-        //var result = ConfigurationHandler.SaveConfigFile();
-
+        ConfigurationHandler.CheckIfConfigurationIsLatestRevision();
+        //TODO: Method to go through revisions.
         try
         {
             var resultLoadConfigFile = ConfigurationHandler.LoadConfigFile();
@@ -29,14 +24,68 @@ class Program
                     mainFilesErrors.Add($"LAUNCHER: {loadedConfiguration.LauncherFilePath} was not found.");
                 }
 
-                if(loadedConfiguration.IsServerLocal && !File.Exists(loadedConfiguration.ServerFilePath))
+                if (loadedConfiguration.IsServerLocal && !File.Exists(loadedConfiguration.ServerFilePath))
                 {
-                    mainFilesErrors.Add($"SERVER: Local is flagged true but was not found in specified directory {loadedConfiguration.LauncherFilePath}.");
+                    mainFilesErrors.Add($"SERVER: Local = Yes");
+                    mainFilesErrors.Add($"SERVER: {loadedConfiguration.LauncherFilePath} was not found.");
                 }
 
                 if (mainFilesErrors.Count == 0)
                 {
                     List<App> apps = SetApps(loadedConfiguration);
+                    //Tries to run each app subsequently, in order.
+
+                    Console.WriteLine($"SERVER: Local = {(loadedConfiguration.IsServerLocal ? "Yes" : "No, Skipping...")}");
+
+                    foreach (App app in apps)
+                    {
+                        Console.WriteLine($"Launching {app.FilePath}...");
+                        if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
+                        {
+                            Console.WriteLine(@$"""{app.FilePath}"" is already running, Skipping...");
+                            app.Status = AppStatusEnum.AlreadyLaunched;
+                        }
+                        else
+                        {
+                            if (!File.Exists(app.FilePath))
+                            {
+                                Console.WriteLine(@$"""{app.FilePath}"" was not found. Skipping...");
+                                app.Status = AppStatusEnum.NotFound;
+                            }
+                            else
+                            {
+                                //Launch apps minimized, or not.
+                                string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
+                                var filePath = @$"{app.FilePath}";
+
+                                ProcessStartInfo startInfo = new()
+                                {
+                                    FileName = app.FilePath,
+                                    Arguments = minSwitch,
+                                    UseShellExecute = true,
+                                    CreateNoWindow = false,
+                                    WorkingDirectory = Path.GetDirectoryName(app.FilePath),
+                                    WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
+                                };
+                                Process.Start(startInfo);
+
+                                if (app.Type == AppTypeEnum.Server)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                                    Console.WriteLine(@$"Waiting {loadedConfiguration.ServerWaitTimeInSeconds} seconds for ""{app.FilePath}"" to finish initializing...");
+                                    Console.WriteLine($"(This value can be changed in the config file.)");
+                                    Console.ResetColor();
+                                    Thread.Sleep(loadedConfiguration.ServerWaitTimeInSeconds * 1000);
+                                }
+
+                                Console.WriteLine($"{app.FilePath} launched!");
+                                app.Status = AppStatusEnum.Launched;
+                            }
+                        }
+                    }
+
+                    //Assume success, otherwise errors would have been caught.
+                    SuccessEnd(apps, loadedConfiguration.PauseIfAppsNotFound);
                 }
                 else
                 {
@@ -44,89 +93,15 @@ class Program
                 }
             }
             else WriteErrors(resultLoadConfigFile.Item1.Message);
-           
+
         }
         catch (Exception ex)
         {
             WriteErrors(ex.ToString());
         }
-
-        ////Run app
-        //if (configErrors.Count == 0 && config != null)
-        //{
-        //    //Check if app location is in SPT directory
-        //    if (File.Exists(Path.GetFileName(config.ServerFile)) && File.Exists(Path.GetFileName(config.LauncherFile)))
-        //    {
-        //        //Launch apps
-        //        try
-        //        {
-        //            //Retrieve Server, Launcher and external apps
-        //            List<App> apps = SetApps(config);
-        //            //Tries to run each app subsequently, in order.
-        //            foreach (App app in apps)
-        //            {
-        //                Console.WriteLine($"Launching {app.FilePath}...");
-        //                if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
-        //                {
-        //                    Console.WriteLine($"{app.FilePath} is already running, Skipping...");
-        //                    app.Status = AppStatusEnum.AlreadyLaunched;
-        //                }
-        //                else
-        //                {
-        //                    if (!File.Exists(app.FilePath))
-        //                    {
-        //                        Console.WriteLine($"\"{app.FilePath}\" was not found. Skipping...");
-        //                        app.Status = AppStatusEnum.NotFound;
-        //                    }
-        //                    else
-        //                    {
-        //                        //Launch apps minimized, or not.
-        //                        string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
-        //                        var filePath = @$"""{app.FilePath}""";
-        //                        ProcessStartInfo startInfo = new()
-        //                        {
-        //                            FileName = app.FilePath,
-        //                            Arguments = minSwitch,
-        //                            UseShellExecute = true,
-        //                            CreateNoWindow = false,
-        //                            WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
-        //                        };
-        //                        Process.Start(startInfo);
-
-        //                        if (app.Type == AppTypeEnum.Server)
-        //                        {
-        //                            Console.ForegroundColor = ConsoleColor.DarkGray;
-        //                            Console.WriteLine($"Waiting {config.ServerWaitTimeInSeconds} seconds for {app.FilePath} to finish initializing...");
-        //                            Console.WriteLine($"(This value can be changed in the config file {config_file})");
-        //                            Console.ResetColor();
-        //                            Thread.Sleep(config.ServerWaitTimeInSeconds * 1000);
-        //                        }
-        //                        Console.WriteLine($"{app.FilePath} launched!");
-        //                        app.Status = AppStatusEnum.Launched;
-        //                    }
-        //                }
-        //            }
-
-        //            //Assume success, otherwise errors would have been caught.
-        //            SuccessEnd(apps);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            WriteErrors(ex.ToString());
-        //        }
-        //    }
-        //    else
-        //    {
-        //        WriteErrors($"{AppDomain.CurrentDomain.FriendlyName} must be in the same directory than {Path.GetFileName(config.ServerFile)} and {Path.GetFileName(config.LauncherFile)}");
-        //    }
-        //}
-        //else
-        //{
-        //    WriteErrors(configErrors);
-        //}
     }
 
-    private static void SuccessEnd(List<App> apps)
+    private static void SuccessEnd(List<App> apps, bool pauseIfAppsNotFound)
     {
         List<App> appsLaunched = apps.Where(x => x.Status == AppStatusEnum.Launched).ToList();
         List<App> appsAlreadyLaunched = apps.Where(x => x.Status == AppStatusEnum.AlreadyLaunched).ToList();
@@ -139,14 +114,14 @@ class Program
         if (appsLaunched.Count > 0)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(string.Join(", ", appsLaunched.Select(x => x.FilePath)));
+            foreach (var app in appsLaunched) Console.WriteLine(app.FilePath);
             Console.ForegroundColor = ConsoleColor.Green;
         }
         Console.WriteLine($"Apps Already Running (Skipped): {appsAlreadyLaunched.Count}");
         if (appsAlreadyLaunched.Count > 0)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(string.Join(", ", appsAlreadyLaunched.Select(x => x.FilePath)));
+            foreach (var app in appsAlreadyLaunched) Console.WriteLine(app.FilePath);
             Console.ForegroundColor = ConsoleColor.Green;
         }
         Console.WriteLine($"Apps Not Found (Skipped): {appsNotFound.Count}");
@@ -154,14 +129,21 @@ class Program
         if (appsNotFound.Count > 0)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(string.Join(", ", appsNotFound.Select(x => x.FilePath)));
+            foreach (var app in appsNotFound) Console.WriteLine(app.FilePath);
             Console.ForegroundColor = ConsoleColor.Green;
         }
         Console.WriteLine(string.Empty);
         Console.ForegroundColor = ConsoleColor.Yellow;
-        //TODO: config if app not found pause.
-        Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} will close itself in 5 seconds. GLHF!");
-        Thread.Sleep(5000);
+        if (appsNotFound.Count > 0 && pauseIfAppsNotFound)
+        {
+            Console.WriteLine($"Pause if apps were not found is enabled in the configuration file. When you are ready, press enter to exit.");
+            Console.ReadLine();
+        }
+        else
+        {
+            Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} will close itself in 5 seconds. GLHF!");
+            Thread.Sleep(5000);
+        }
         Console.ResetColor();
     }
 
@@ -187,7 +169,7 @@ class Program
     {
         List<App> apps = [];
 
-        if (!config.IsServerLocal) apps.Add(new App { FilePath = config.ServerFilePath, Type = AppTypeEnum.Server, LaunchMinimized = true });
+        if (config.IsServerLocal) apps.Add(new App { FilePath = config.ServerFilePath, Type = AppTypeEnum.Server, LaunchMinimized = true });
         apps.Add(new App { FilePath = config.LauncherFilePath, Type = AppTypeEnum.Launcher, LaunchMinimized = false });
 
         foreach (ExternalApp app in config.ExternalApps.Where(x => !string.IsNullOrWhiteSpace(x.FilePath)))
@@ -206,13 +188,11 @@ class Program
     {
         Assembly? assembly = Assembly.GetEntryAssembly();
         AssemblyName? assemblyName = assembly?.GetName();
-        Version? version = assemblyName?.Version;
-
-        if (version != null)
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} v{version}");
-            Console.ResetColor();
-        }
+        string? version = assemblyName?.Version?.ToString();
+        version ??= "0.0.0.0";
+        int lastPeriodIndex = version.LastIndexOf('.');
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} v{version[..lastPeriodIndex]}");
+        Console.ResetColor();
     }
 }
