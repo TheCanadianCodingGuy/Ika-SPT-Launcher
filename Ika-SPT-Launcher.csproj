@@ -20,6 +20,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ConfigHandler\**" />
+    <Compile Remove="Ika-SPT-Launcher-ConfigEditor\**" />
+    <EmbeddedResource Remove="ConfigHandler\**" />
+    <EmbeddedResource Remove="Ika-SPT-Launcher-ConfigEditor\**" />
+    <None Remove="ConfigHandler\**" />
+    <None Remove="Ika-SPT-Launcher-ConfigEditor\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="appicon.ico" />
   </ItemGroup>
 
@@ -29,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigHandler\ConfigHandler.csproj" />
+    <ProjectReference Include="ConfigHandler\ConfigHandler.csproj" />
   </ItemGroup>
 
 </Project>

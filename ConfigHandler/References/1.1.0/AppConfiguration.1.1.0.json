@@ -1,0 +1,12 @@
+{
+  "ServerWaitTimeInSeconds": 10,
+  "IsServerLocal": true,
+  "ServerFilePath": "Aki.Server.exe",
+  "LauncherFilePath": "Aki.Launcher.exe",
+  "ExternalApps": [
+    {
+      "File": "",
+      "LaunchMinimized": true
+    }
+  ]
+}
