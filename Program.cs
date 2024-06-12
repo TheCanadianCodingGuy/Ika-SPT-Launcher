@@ -1,153 +1,129 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using Ika_SPT_Launcher.Models;
-using Newtonsoft.Json;
 using ConfigHandler;
 
 class Program
 {
     static void Main()
     {
-        List<string> configErrors = [];
-        Config? config = new();
-        string config_file = $"{AppDomain.CurrentDomain.FriendlyName}.config.json";
-        var handler = new ConfigurationHandler();
-
-        //var test = handler.CheckIfConfigFileExists(config_file);
-        var test = handler.ValidateConfigJsonFile(config_file);
-        //Config Info
-        int DEAULT_SERVER_WAIT_TIME = 10;
-        string DEFAULT_SERVER_FILE = "Aki.Server.exe";
-        string DEFAULT_LAUNCHER_FILE = "Aki.Launcher.exe";
+        //TODO: DO BACKWARD COMPATIBILITY FOR OLD CONFIGS
         DisplayAppVersion();
+        //var result = ConfigurationHandler.CheckIfConfigFileExists();
+        //var result = ConfigurationHandler.CreateNewDefaultConfigFile();
+        //var result = ConfigurationHandler.GetAppConfiguration();
+        //var result = ConfigurationHandler.GetConfigFilePath();
+        //var result = ConfigurationHandler.LoadConfigFile();
+        //var result = ConfigurationHandler.SaveConfigFile();
+
         try
         {
-            //Check if app location is in SPT directory
-            if (File.Exists(DEFAULT_SERVER_FILE) && File.Exists(DEFAULT_LAUNCHER_FILE))
+            var resultLoadConfigFile = ConfigurationHandler.LoadConfigFile();
+            if (resultLoadConfigFile.Item1.IsSuccess)
             {
-                //Check if config exists, if not, create a default config
-                if (!File.Exists(config_file))
-                {
-                    config = new Config()
-                    {
-                        ServerWaitTimeInSeconds = DEAULT_SERVER_WAIT_TIME,
-                        ServerFile = DEFAULT_SERVER_FILE,
-                        LauncherFile = DEFAULT_LAUNCHER_FILE,
-                        ExternalApps = [new ExternalApp { File = string.Empty, LaunchMinimized = true }]
-                    };
+                AppConfiguration loadedConfiguration = resultLoadConfigFile.Item2;
+                List<string> mainFilesErrors = [];
 
-                    string newConfigJson = JsonConvert.SerializeObject(config, Formatting.Indented);
-                    string appPath = AppDomain.CurrentDomain.BaseDirectory;
-                    string newSavefilePath = Path.Combine(appPath, config_file);
-                    File.WriteAllText(newSavefilePath, newConfigJson);
-                    Console.WriteLine($"No config file found, {newSavefilePath} created with default values. You can edit the values and add external apps to load in this file.");
+                if (!File.Exists(loadedConfiguration.LauncherFilePath))
+                {
+                    mainFilesErrors.Add($"LAUNCHER: {loadedConfiguration.LauncherFilePath} was not found.");
                 }
 
-                string? jsonContent = File.ReadAllText(config_file);
-                if (jsonContent != null)
+                if(loadedConfiguration.IsServerLocal && !File.Exists(loadedConfiguration.ServerFilePath))
                 {
-                    config = JsonConvert.DeserializeObject<Config>(jsonContent);
+                    mainFilesErrors.Add($"SERVER: Local is flagged true but was not found in specified directory {loadedConfiguration.LauncherFilePath}.");
+                }
 
-                    if (config != null)
-                    {
-                        if (config.ServerWaitTimeInSeconds < 0 || config.ServerWaitTimeInSeconds > 600) configErrors.Add("config.ServerWaitTimeInSeconds: Invalid Value, Must be between 0 and 600.");
-                        if (string.IsNullOrWhiteSpace(config.ServerFile) || !config.ServerFile.EndsWith(".exe")) configErrors.Add("config.ServerFile: Invalid file path and/or name.");
-                        if (string.IsNullOrWhiteSpace(config.LauncherFile) || !config.LauncherFile.EndsWith(".exe")) configErrors.Add("config.LauncherFile: Invalid file path and/or name.");
-                        config.ExternalApps ??= [];
-                    }
-                    else
-                    {
-                        configErrors.Add($"{config_file} was impropriately deserialized and returned null.");
-                    }
+                if (mainFilesErrors.Count == 0)
+                {
+                    List<App> apps = SetApps(loadedConfiguration);
                 }
                 else
                 {
-                    configErrors.Add($"{config_file} could not be deserialized. It is either corrupted or missing.");
+                    WriteErrors(mainFilesErrors);
                 }
             }
-            else
-            {
-                WriteErrors($"{AppDomain.CurrentDomain.FriendlyName} must be in the same directory than {DEFAULT_SERVER_FILE} and {DEFAULT_LAUNCHER_FILE}");
-            }
+            else WriteErrors(resultLoadConfigFile.Item1.Message);
+           
         }
         catch (Exception ex)
         {
-            configErrors.Add(ex.ToString());
+            WriteErrors(ex.ToString());
         }
 
-        //Run app
-        if (configErrors.Count == 0 && config != null)
-        {
-            //Check if app location is in SPT directory
-            if (File.Exists(Path.GetFileName(config.ServerFile)) && File.Exists(Path.GetFileName(config.LauncherFile)))
-            {
-                //Launch apps
-                try
-                {
-                    //Retrieve Server, Launcher and external apps
-                    List<App> apps = SetApps(config);
-                    //Tries to run each app subsequently, in order.
-                    foreach (App app in apps)
-                    {
-                        Console.WriteLine($"Launching {app.FilePath}...");
-                        if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
-                        {
-                            Console.WriteLine($"{app.FilePath} is already running, Skipping...");
-                            app.Status = AppStatusEnum.AlreadyLaunched;
-                        }
-                        else
-                        {
-                            if (!File.Exists(app.FilePath))
-                            {
-                                Console.WriteLine($"\"{app.FilePath}\" was not found. Skipping...");
-                                app.Status = AppStatusEnum.NotFound;
-                            }
-                            else
-                            {
-                                //Launch apps minimized, or not.
-                                string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
-                                var filePath = @$"""{app.FilePath}""";
-                                ProcessStartInfo startInfo = new()
-                                {
-                                    FileName = app.FilePath,
-                                    Arguments = minSwitch,
-                                    UseShellExecute = true,
-                                    CreateNoWindow = false,
-                                    WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
-                                };
-                                Process.Start(startInfo);
+        ////Run app
+        //if (configErrors.Count == 0 && config != null)
+        //{
+        //    //Check if app location is in SPT directory
+        //    if (File.Exists(Path.GetFileName(config.ServerFile)) && File.Exists(Path.GetFileName(config.LauncherFile)))
+        //    {
+        //        //Launch apps
+        //        try
+        //        {
+        //            //Retrieve Server, Launcher and external apps
+        //            List<App> apps = SetApps(config);
+        //            //Tries to run each app subsequently, in order.
+        //            foreach (App app in apps)
+        //            {
+        //                Console.WriteLine($"Launching {app.FilePath}...");
+        //                if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
+        //                {
+        //                    Console.WriteLine($"{app.FilePath} is already running, Skipping...");
+        //                    app.Status = AppStatusEnum.AlreadyLaunched;
+        //                }
+        //                else
+        //                {
+        //                    if (!File.Exists(app.FilePath))
+        //                    {
+        //                        Console.WriteLine($"\"{app.FilePath}\" was not found. Skipping...");
+        //                        app.Status = AppStatusEnum.NotFound;
+        //                    }
+        //                    else
+        //                    {
+        //                        //Launch apps minimized, or not.
+        //                        string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
+        //                        var filePath = @$"""{app.FilePath}""";
+        //                        ProcessStartInfo startInfo = new()
+        //                        {
+        //                            FileName = app.FilePath,
+        //                            Arguments = minSwitch,
+        //                            UseShellExecute = true,
+        //                            CreateNoWindow = false,
+        //                            WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
+        //                        };
+        //                        Process.Start(startInfo);
 
-                                if (app.Type == AppTypeEnum.Server)
-                                {
-                                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                                    Console.WriteLine($"Waiting {config.ServerWaitTimeInSeconds} seconds for {app.FilePath} to finish initializing...");
-                                    Console.WriteLine($"(This value can be changed in the config file {config_file})");
-                                    Console.ResetColor();
-                                    Thread.Sleep(config.ServerWaitTimeInSeconds * 1000);
-                                }
-                                Console.WriteLine($"{app.FilePath} launched!");
-                                app.Status = AppStatusEnum.Launched;
-                            }
-                        }
-                    }
+        //                        if (app.Type == AppTypeEnum.Server)
+        //                        {
+        //                            Console.ForegroundColor = ConsoleColor.DarkGray;
+        //                            Console.WriteLine($"Waiting {config.ServerWaitTimeInSeconds} seconds for {app.FilePath} to finish initializing...");
+        //                            Console.WriteLine($"(This value can be changed in the config file {config_file})");
+        //                            Console.ResetColor();
+        //                            Thread.Sleep(config.ServerWaitTimeInSeconds * 1000);
+        //                        }
+        //                        Console.WriteLine($"{app.FilePath} launched!");
+        //                        app.Status = AppStatusEnum.Launched;
+        //                    }
+        //                }
+        //            }
 
-                    //Assume success, otherwise errors would have been caught.
-                    SuccessEnd(apps);
-                }
-                catch (Exception ex)
-                {
-                    WriteErrors(ex.ToString());
-                }
-            }
-            else
-            {
-                WriteErrors($"{AppDomain.CurrentDomain.FriendlyName} must be in the same directory than {Path.GetFileName(config.ServerFile)} and {Path.GetFileName(config.LauncherFile)}");
-            }
-        }
-        else
-        {
-            WriteErrors(configErrors);
-        }
+        //            //Assume success, otherwise errors would have been caught.
+        //            SuccessEnd(apps);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            WriteErrors(ex.ToString());
+        //        }
+        //    }
+        //    else
+        //    {
+        //        WriteErrors($"{AppDomain.CurrentDomain.FriendlyName} must be in the same directory than {Path.GetFileName(config.ServerFile)} and {Path.GetFileName(config.LauncherFile)}");
+        //    }
+        //}
+        //else
+        //{
+        //    WriteErrors(configErrors);
+        //}
     }
 
     private static void SuccessEnd(List<App> apps)
@@ -183,9 +159,10 @@ class Program
         }
         Console.WriteLine(string.Empty);
         Console.ForegroundColor = ConsoleColor.Yellow;
+        //TODO: config if app not found pause.
         Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} will close itself in 5 seconds. GLHF!");
-        Console.ResetColor();
         Thread.Sleep(5000);
+        Console.ResetColor();
     }
 
     private static void WriteErrors(List<string> errors)
@@ -206,19 +183,18 @@ class Program
         WriteErrors([errors]);
     }
 
-    private static List<App> SetApps(Config config)
+    private static List<App> SetApps(AppConfiguration config)
     {
-        List<App> apps =
-        [
-            new App{ FilePath = config.ServerFile, Type = AppTypeEnum.Server, LaunchMinimized = true },
-            new App{ FilePath = config.LauncherFile, Type = AppTypeEnum.Launcher, LaunchMinimized = false }
-        ];
+        List<App> apps = [];
 
-        foreach (ExternalApp app in config.ExternalApps.Where(x => !string.IsNullOrWhiteSpace(x.File)))
+        if (!config.IsServerLocal) apps.Add(new App { FilePath = config.ServerFilePath, Type = AppTypeEnum.Server, LaunchMinimized = true });
+        apps.Add(new App { FilePath = config.LauncherFilePath, Type = AppTypeEnum.Launcher, LaunchMinimized = false });
+
+        foreach (ExternalApp app in config.ExternalApps.Where(x => !string.IsNullOrWhiteSpace(x.FilePath)))
         {
             apps.Add(new App
             {
-                FilePath = app.File,
+                FilePath = app.FilePath,
                 Type = AppTypeEnum.External,
                 LaunchMinimized = app.LaunchMinimized
             });
