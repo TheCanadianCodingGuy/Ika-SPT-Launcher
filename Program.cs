@@ -7,93 +7,103 @@ class Program
 {
     static void Main()
     {
-        //TODO: DO BACKWARD COMPATIBILITY FOR OLD CONFIGS
+        //Displays app version on top of the screen.
         DisplayAppVersion();
-        ConfigurationHandler.CheckIfConfigurationIsLatestRevision();
-        //TODO: Method to go through revisions.
         try
         {
+            //Loads configuration file.
             var resultLoadConfigFile = ConfigurationHandler.LoadConfigFile();
+
             if (resultLoadConfigFile.Item1.IsSuccess)
             {
-                AppConfiguration loadedConfiguration = resultLoadConfigFile.Item2;
-                List<string> mainFilesErrors = [];
-
-                if (!File.Exists(loadedConfiguration.LauncherFilePath))
+                //Update configuration if necessary.
+                var resultUpdateRevision = ConfigurationHandler.UpdateConfigurationToCurrentRevision();
+                if (resultLoadConfigFile.Item1.IsSuccess)
                 {
-                    mainFilesErrors.Add($"LAUNCHER: {loadedConfiguration.LauncherFilePath} was not found.");
-                }
+                    AppConfiguration loadedConfiguration = resultLoadConfigFile.Item2;
+                    List<string> mainFilesErrors = [];
 
-                if (loadedConfiguration.IsServerLocal && !File.Exists(loadedConfiguration.ServerFilePath))
-                {
-                    mainFilesErrors.Add($"SERVER: Local = Yes");
-                    mainFilesErrors.Add($"SERVER: {loadedConfiguration.LauncherFilePath} was not found.");
-                }
-
-                if (mainFilesErrors.Count == 0)
-                {
-                    List<App> apps = SetApps(loadedConfiguration);
-                    //Tries to run each app subsequently, in order.
-
-                    Console.WriteLine($"SERVER: Local = {(loadedConfiguration.IsServerLocal ? "Yes" : "No, Skipping...")}");
-
-                    foreach (App app in apps)
+                    //Checks if Launcher exists.
+                    if (!File.Exists(loadedConfiguration.LauncherFilePath))
                     {
-                        Console.WriteLine($"Launching {app.FilePath}...");
-                        if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
+                        mainFilesErrors.Add($"LAUNCHER: {loadedConfiguration.LauncherFilePath} was not found.");
+                    }
+
+                    //If local, check if sever exists.
+                    if (loadedConfiguration.IsServerLocal && !File.Exists(loadedConfiguration.ServerFilePath))
+                    {
+                        mainFilesErrors.Add($"SERVER: Local = Yes");
+                        mainFilesErrors.Add($"SERVER: {loadedConfiguration.LauncherFilePath} was not found.");
+                    }
+
+                    if (mainFilesErrors.Count == 0)
+                    {
+                        //Prepare apps to load.
+                        List<App> apps = SetApps(loadedConfiguration);
+
+                        //Tell the user if the server is to be skipped or not.
+                        Console.WriteLine($"SERVER: Local = {(loadedConfiguration.IsServerLocal ? "Yes" : "No, Skipping...")}");
+
+                        //Load apps.
+                        foreach (App app in apps)
                         {
-                            Console.WriteLine(@$"""{app.FilePath}"" is already running, Skipping...");
-                            app.Status = AppStatusEnum.AlreadyLaunched;
-                        }
-                        else
-                        {
-                            if (!File.Exists(app.FilePath))
+                            Console.WriteLine($"Launching {app.FilePath}...");
+                            //Checks if app is running beforehands.
+                            if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(app.FilePath)).Length > 0)
                             {
-                                Console.WriteLine(@$"""{app.FilePath}"" was not found. Skipping...");
-                                app.Status = AppStatusEnum.NotFound;
+                                Console.WriteLine(@$"""{app.FilePath}"" is already running, Skipping...");
+                                app.Status = AppStatusEnum.AlreadyLaunched;
                             }
                             else
                             {
-                                //Launch apps minimized, or not.
-                                string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
-                                var filePath = @$"{app.FilePath}";
-
-                                ProcessStartInfo startInfo = new()
+                                //Checks if app exists before trying to run it.
+                                if (!File.Exists(app.FilePath))
                                 {
-                                    FileName = app.FilePath,
-                                    Arguments = minSwitch,
-                                    UseShellExecute = true,
-                                    CreateNoWindow = false,
-                                    WorkingDirectory = Path.GetDirectoryName(app.FilePath),
-                                    WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal
-                                };
-                                Process.Start(startInfo);
-
-                                if (app.Type == AppTypeEnum.Server)
-                                {
-                                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                                    Console.WriteLine(@$"Waiting {loadedConfiguration.ServerWaitTimeInSeconds} seconds for ""{app.FilePath}"" to finish initializing...");
-                                    Console.WriteLine($"(This value can be changed in the config file.)");
-                                    Console.ResetColor();
-                                    Thread.Sleep(loadedConfiguration.ServerWaitTimeInSeconds * 1000);
+                                    Console.WriteLine(@$"""{app.FilePath}"" was not found. Skipping...");
+                                    app.Status = AppStatusEnum.NotFound;
                                 }
+                                else
+                                {
+                                    //Launch apps minimized, or not.
+                                    string minSwitch = app.LaunchMinimized ? "/min" : string.Empty;
+                                    var filePath = @$"{app.FilePath}";
 
-                                Console.WriteLine($"{app.FilePath} launched!");
-                                app.Status = AppStatusEnum.Launched;
+                                    ProcessStartInfo startInfo = new()
+                                    {
+                                        FileName = app.FilePath,
+                                        Arguments = minSwitch, //Instruct if minimized or not
+                                        UseShellExecute = true,
+                                        CreateNoWindow = false,
+                                        WorkingDirectory = Path.GetDirectoryName(app.FilePath), //Sets its working directory to where the app to run is located.
+                                        WindowStyle = app.LaunchMinimized ? ProcessWindowStyle.Minimized : ProcessWindowStyle.Normal //Instruct if minimized or not.
+                                    };
+                                    Process.Start(startInfo);
+
+                                    //If server, wait for it to initialize.
+                                    if (app.Type == AppTypeEnum.Server)
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                                        Console.WriteLine(@$"Waiting {loadedConfiguration.ServerWaitTimeInSeconds} seconds for ""{app.FilePath}"" to finish initializing...");
+                                        Console.WriteLine($"(This value can be changed in the config file.)");
+                                        Console.ResetColor();
+                                        Thread.Sleep(loadedConfiguration.ServerWaitTimeInSeconds * 1000);
+                                    }
+
+                                    //set status to launched.
+                                    Console.WriteLine($"{app.FilePath} launched!");
+                                    app.Status = AppStatusEnum.Launched;
+                                }
                             }
                         }
-                    }
 
-                    //Assume success, otherwise errors would have been caught.
-                    SuccessEnd(apps, loadedConfiguration.PauseIfAppsNotFound);
+                        //Assume success, otherwise errors would have been caught.
+                        SuccessEnd(apps, loadedConfiguration.PauseIfAppsNotFound);
+                    }
+                    else WriteErrors(mainFilesErrors);
                 }
-                else
-                {
-                    WriteErrors(mainFilesErrors);
-                }
+                else WriteErrors(resultLoadConfigFile.Item1.Message);
             }
             else WriteErrors(resultLoadConfigFile.Item1.Message);
-
         }
         catch (Exception ex)
         {
@@ -101,6 +111,11 @@ class Program
         }
     }
 
+    /// <summary>
+    /// Displays a post-run summary.
+    /// </summary>
+    /// <param name="apps">Apps processed.</param>
+    /// <param name="pauseIfAppsNotFound">If user wants to pause the app after launch, this will do it.</param>
     private static void SuccessEnd(List<App> apps, bool pauseIfAppsNotFound)
     {
         List<App> appsLaunched = apps.Where(x => x.Status == AppStatusEnum.Launched).ToList();
@@ -147,6 +162,10 @@ class Program
         Console.ResetColor();
     }
 
+    /// <summary>
+    /// Displays errors and let user know.
+    /// </summary>
+    /// <param name="errors">Errors to display.</param>
     private static void WriteErrors(List<string> errors)
     {
         Console.ForegroundColor = ConsoleColor.Red;
@@ -160,11 +179,20 @@ class Program
         Console.ReadLine();
     }
 
-    private static void WriteErrors(string errors)
+    /// <summary>
+    /// Displays errors and let user know.
+    /// </summary>
+    /// <param name="error">Error to display.</param>
+    private static void WriteErrors(string error)
     {
-        WriteErrors([errors]);
+        WriteErrors([error]);
     }
 
+    /// <summary>
+    /// Sett apps to run.
+    /// </summary>
+    /// <param name="config">config with app paths.</param>
+    /// <returns>list of apps and statuses post-run.</returns>
     private static List<App> SetApps(AppConfiguration config)
     {
         List<App> apps = [];
@@ -184,6 +212,9 @@ class Program
         return apps;
     }
 
+    /// <summary>
+    /// Displays version of the main app.
+    /// </summary>
     private static void DisplayAppVersion()
     {
         Assembly? assembly = Assembly.GetEntryAssembly();
