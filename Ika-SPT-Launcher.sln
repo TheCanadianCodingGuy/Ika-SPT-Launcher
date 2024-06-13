@@ -7,26 +7,56 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ika-SPT-Launcher", "Ika-SPT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ika-SPT-Launcher-ConfigEditor", "Ika-SPT-Launcher-ConfigEditor\Ika-SPT-Launcher-ConfigEditor.csproj", "{7D63A8D6-2BA1-42E2-9343-DA1192973938}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigHandler", "ConfigHandler\ConfigHandler.csproj", "{2A27039D-E652-4E41-BEDE-078FC0B6B91D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigHandler", "ConfigHandler\ConfigHandler.csproj", "{2A27039D-E652-4E41-BEDE-078FC0B6B91D}"
+EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Ika-SPT-Launcher-Setup", "Ika-SPT-Launcher-Setup\Ika-SPT-Launcher-Setup.wixproj", "{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Ika-SPT-Launcher-MSI", "Ika-SPT-Launcher-MSI\Ika-SPT-Launcher-MSI.vdproj", "{A22D5EF3-4DA7-460F-B53F-E7F1BAE9FB51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Debug|x86.Build.0 = Debug|Any CPU
 		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Release|x86.ActiveCfg = Release|Any CPU
+		{17752468-7AF0-4DE1-AC70-24C3A829D93A}.Release|x86.Build.0 = Release|Any CPU
 		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Debug|x86.Build.0 = Debug|Any CPU
 		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D63A8D6-2BA1-42E2-9343-DA1192973938}.Release|x86.Build.0 = Release|Any CPU
 		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Debug|x86.Build.0 = Debug|Any CPU
 		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Release|x86.ActiveCfg = Release|Any CPU
+		{2A27039D-E652-4E41-BEDE-078FC0B6B91D}.Release|x86.Build.0 = Release|Any CPU
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Debug|Any CPU.Build.0 = Debug|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Debug|x86.ActiveCfg = Debug|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Debug|x86.Build.0 = Debug|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Release|Any CPU.ActiveCfg = Release|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Release|Any CPU.Build.0 = Release|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Release|x86.ActiveCfg = Release|x86
+		{4AD39112-0607-4C8D-BC7F-8F06C58C9C9F}.Release|x86.Build.0 = Release|x86
+		{A22D5EF3-4DA7-460F-B53F-E7F1BAE9FB51}.Debug|Any CPU.ActiveCfg = Debug
+		{A22D5EF3-4DA7-460F-B53F-E7F1BAE9FB51}.Debug|x86.ActiveCfg = Debug
+		{A22D5EF3-4DA7-460F-B53F-E7F1BAE9FB51}.Release|Any CPU.ActiveCfg = Release
+		{A22D5EF3-4DA7-460F-B53F-E7F1BAE9FB51}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
