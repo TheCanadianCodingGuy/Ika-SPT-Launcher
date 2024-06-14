@@ -5,19 +5,36 @@ using ConfigHandler;
 
 class Program
 {
+    private static readonly string GUI_FILE = "Ika-SPT-Launcher-ConfigEditor.exe";
     static void Main()
     {
         //Displays app version on top of the screen.
         DisplayAppVersion();
         try
         {
-            //Loads configuration file.
-            var resultLoadConfigFile = ConfigurationHandler.LoadConfigFile();
+            //Before everything, if config file does not exist, offload to GUI if GUI exists. Otherwise, let launcher handle it.
+            var willRunGUI = false;
+            var resultExist = ConfigurationHandler.CheckIfConfigFileExists();
+            if (resultExist.Item1.IsSuccess)
+                if (!resultExist.Item2 && File.Exists(GUI_FILE)) willRunGUI = true;
 
-            if (resultLoadConfigFile.Item1.IsSuccess)
+            if (willRunGUI)
             {
-                //Update configuration if necessary.
-                var resultUpdateRevision = ConfigurationHandler.UpdateConfigurationToCurrentRevision();
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = GUI_FILE,
+                    Arguments = "/firstrun",
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
+                    WorkingDirectory = Path.GetDirectoryName(GUI_FILE), //Sets its working directory to where the app to run is located.
+                };
+                Process.Start(startInfo);
+            }
+            else
+            {
+                //Loads configuration file.
+                var resultLoadConfigFile = ConfigurationHandler.LoadConfigFile();
+
                 if (resultLoadConfigFile.Item1.IsSuccess)
                 {
                     AppConfiguration loadedConfiguration = resultLoadConfigFile.Item2;
@@ -25,9 +42,7 @@ class Program
 
                     //Checks if Launcher exists.
                     if (!File.Exists(loadedConfiguration.LauncherFilePath))
-                    {
                         mainFilesErrors.Add($"LAUNCHER: {loadedConfiguration.LauncherFilePath} was not found.");
-                    }
 
                     //If local, check if sever exists.
                     if (loadedConfiguration.IsServerLocal && !File.Exists(loadedConfiguration.ServerFilePath))
@@ -103,7 +118,6 @@ class Program
                 }
                 else WriteErrors(resultLoadConfigFile.Item1.Message);
             }
-            else WriteErrors(resultLoadConfigFile.Item1.Message);
         }
         catch (Exception ex)
         {
@@ -170,9 +184,8 @@ class Program
     {
         Console.ForegroundColor = ConsoleColor.Red;
         foreach (string error in errors)
-        {
             Console.Error.WriteLine(error);
-        }
+
         Console.ResetColor();
         Console.WriteLine(string.Empty);
         Console.WriteLine("Press Enter to exit...");

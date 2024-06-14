@@ -9,6 +9,7 @@
     <ApplicationIcon>appicon.ico</ApplicationIcon>
     <Version>1.1.0</Version>
     <Authors>Ikaras</Authors>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

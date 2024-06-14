@@ -1,0 +1,5 @@
+﻿SPT-Launcher - Project Package Version
+SPT-ConfigEditor - Change Form Window Version
+Publish - Create Zip with version
+Github - New Release
+SPT Hub - New Release

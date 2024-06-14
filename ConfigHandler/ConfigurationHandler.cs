@@ -10,7 +10,7 @@ namespace ConfigHandler
         private static bool isConfigSet = false; //Make sure it does not load the configuration multiple times.
         private static AppConfiguration config = new();
         private static ConfigurationHandlerReturnModel returnModel = new();
-        private static readonly string CONFIG_FILE_PATH = @$"C:\SPT\{AppDomain.CurrentDomain.FriendlyName}.config.json";
+        private static readonly string CONFIG_FILE_PATH = "Ika-SPT-Launcher.config.json";
 
         /// <summary>
         /// Check if the file exists on the filesystem. Location at the same place as where the app is installed
@@ -31,12 +31,17 @@ namespace ConfigHandler
             return new Tuple<ConfigurationHandlerReturnModel, bool>(returnModel, result);
         }
 
+        public static AppConfiguration? GetConfigurationFile()
+        {
+            return isConfigSet ? config : null;
+        }
+
         /// <summary>
         /// Create a new default configuration file and sets it.
         /// </summary>
         /// <param name="isOverwrite">Overwrite the current configuration with the provided one</param>
         /// <returns>Configuration Object</returns>
-        public static Tuple<ConfigurationHandlerReturnModel, AppConfiguration> CreateNewDefaultConfigFile(bool isOverwrite = false)
+        private static Tuple<ConfigurationHandlerReturnModel, AppConfiguration> CreateNewDefaultConfigFile(bool isOverwrite = false)
         {
             InitializeStatusForSuccess();
             var resultExist = CheckIfConfigFileExists();
@@ -51,15 +56,9 @@ namespace ConfigHandler
                         File.WriteAllText(CONFIG_FILE_PATH, newConfigJson);
                         isConfigSet = true;
                     }
-                    else
-                    {
-                        SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: {CONFIG_FILE_PATH} already exists and was not meant to be overwritten.");
-                    }
+                    else SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: {CONFIG_FILE_PATH} already exists and was not meant to be overwritten.");
                 }
-                else
-                {
-                    returnModel = resultExist.Item1;
-                }
+                else returnModel = resultExist.Item1;
             }
             catch (Exception ex)
             {
@@ -73,21 +72,18 @@ namespace ConfigHandler
         /// </summary>
         /// <param name="configFile">Configuration file to save</param>
         /// <returns>Configuration Object</returns>
-        public static Tuple<ConfigurationHandlerReturnModel, AppConfiguration> SaveConfigFile(AppConfiguration configFile)
+        public static Tuple<ConfigurationHandlerReturnModel, AppConfiguration> SaveConfigFile(AppConfiguration configFile, bool allowUnloaded)
         {
             InitializeStatusForSuccess();
             try
             {
-                if (isConfigSet)
+                if (isConfigSet || allowUnloaded)
                 {
                     string newConfigJson = JsonConvert.SerializeObject(configFile, Formatting.Indented);
                     File.WriteAllText(CONFIG_FILE_PATH, newConfigJson);
                     config = configFile;
                 }
-                else
-                {
-                    SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: {CONFIG_FILE_PATH} file needs to be loaded before being able to save it.");
-                }
+                else SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: {CONFIG_FILE_PATH} file needs to be loaded before being able to save it.");
             }
             catch (Exception ex)
             {
@@ -100,48 +96,44 @@ namespace ConfigHandler
         /// Loads configuration from the filesystem. If none, creates one.
         /// </summary>
         /// <returns>Configuration Object</returns>
-        public static Tuple<ConfigurationHandlerReturnModel, AppConfiguration> LoadConfigFile()
+        public static Tuple<ConfigurationHandlerReturnModel, AppConfiguration> LoadConfigFile(bool forceNew = false)
         {
             InitializeStatusForSuccess();
             try
             {
-                if (!isConfigSet)
+                if (!isConfigSet || forceNew)
                 {
                     var resultExist = CheckIfConfigFileExists();
                     if (resultExist.Item1.IsSuccess)
                     {
-                        if (resultExist.Item2)
+                        if (resultExist.Item2 && !forceNew)
                         {
-                            string configFileJson = File.ReadAllText(CONFIG_FILE_PATH);
-                            AppConfiguration? convertedJson = JsonConvert.DeserializeObject<AppConfiguration>(configFileJson);
-                            if (convertedJson != null)
+                            var resultUpdate = UpdateConfigurationToCurrentRevision();
+                            if (resultUpdate.Item1.IsSuccess)
                             {
-                                config = convertedJson;
-                                isConfigSet = true;
+                                string configFileJson = File.ReadAllText(CONFIG_FILE_PATH);
+                                AppConfiguration? convertedJson = JsonConvert.DeserializeObject<AppConfiguration>(configFileJson);
+                                if (convertedJson != null)
+                                {
+                                    config = convertedJson;
+                                    isConfigSet = true;
+                                }
+                                else SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: Could not load {CONFIG_FILE_PATH}");
                             }
-                            else
-                            {
-                                SetFailureStatus($"{MethodBase.GetCurrentMethod()?.Name}: Could not load {CONFIG_FILE_PATH}");
-                            }
+                            else returnModel = resultUpdate.Item1;
                         }
                         else
                         {
-                            var resultCreate = CreateNewDefaultConfigFile();
+                            var resultCreate = CreateNewDefaultConfigFile(forceNew);
                             if (resultExist.Item1.IsSuccess)
                             {
                                 config = resultCreate.Item2;
                                 isConfigSet = true;
                             }
-                            else
-                            {
-                                returnModel = resultCreate.Item1;
-                            }
+                            else returnModel = resultCreate.Item1;
                         }
                     }
-                    else
-                    {
-                        returnModel = resultExist.Item1;
-                    }
+                    else returnModel = resultExist.Item1;
                 }
             }
             catch (Exception ex)
@@ -174,20 +166,11 @@ namespace ConfigHandler
                         {
                             requiredRevisions = RevisionHistory.Revisions.Where(d => d > configurationRevisionValue).ToList();
                         }
-                        else
-                        {
-                            SetFailureStatus($"{CONFIG_FILE_PATH} contains an invalid revision.");
-                        }
+                        else SetFailureStatus($"{CONFIG_FILE_PATH} contains an invalid revision.");
                     }
-                    else
-                    {
-                        SetFailureStatus($"{CONFIG_FILE_PATH} contains an invalid revision.");
-                    }
+                    else SetFailureStatus($"{CONFIG_FILE_PATH} contains an invalid revision.");
                 }
-                else
-                {
-                    requiredRevisions = RevisionHistory.Revisions;
-                }
+                else requiredRevisions = RevisionHistory.Revisions;
             }
             catch (Exception ex)
             {
@@ -200,7 +183,7 @@ namespace ConfigHandler
         /// Update the configuration file to the latest revision
         /// </summary>
         /// <returns>True if success</returns>
-        public static Tuple<ConfigurationHandlerReturnModel, bool> UpdateConfigurationToCurrentRevision()
+        private static Tuple<ConfigurationHandlerReturnModel, bool> UpdateConfigurationToCurrentRevision()
         {
             InitializeStatusForSuccess();
             bool isSuccess = false;
@@ -210,19 +193,10 @@ namespace ConfigHandler
                 if (resultRevisionCheck.Item1.IsSuccess)
                 {
                     var resultUpdate = UpdateRevisions(resultRevisionCheck.Item2);
-                    if (resultUpdate.Item1.IsSuccess)
-                    {
-                        isSuccess = resultUpdate.Item2;
-                    }
-                    else
-                    {
-                        returnModel = resultRevisionCheck.Item1;
-                    }
+                    if (resultUpdate.Item1.IsSuccess) isSuccess = resultUpdate.Item2;
+                    else returnModel = resultRevisionCheck.Item1;
                 }
-                else
-                {
-                    returnModel = resultRevisionCheck.Item1;
-                }
+                else returnModel = resultRevisionCheck.Item1;
             }
             catch (Exception ex)
             {
@@ -272,10 +246,7 @@ namespace ConfigHandler
                     isSuccess = string.IsNullOrWhiteSpace(error);
                 }
 
-                if (!string.IsNullOrWhiteSpace(error))
-                {
-                    SetFailureStatus(error);
-                }
+                if (!string.IsNullOrWhiteSpace(error)) SetFailureStatus(error);
             }
             catch (Exception ex)
             {
@@ -316,16 +287,8 @@ namespace ConfigHandler
                 //Remove the null or empty external Apps
                 newConfig.ExternalApps = newConfig.ExternalApps.Where(x => !string.IsNullOrWhiteSpace(x.FilePath)).ToList();
 
-                var resultLoad = LoadConfigFile();
-                if (resultLoad.Item1.IsSuccess)
-                {
-                    var resultSave = SaveConfigFile(newConfig);
-                    if (!resultSave.Item1.IsSuccess)
-                    {
-                        error = resultSave.Item1.Message;
-                    }
-                }
-                else { error = resultLoad.Item1.Message; }
+                var resultSave = SaveConfigFile(newConfig, true);
+                if (!resultSave.Item1.IsSuccess) error = resultSave.Item1.Message;
             }
             catch (Exception ex)
             {
