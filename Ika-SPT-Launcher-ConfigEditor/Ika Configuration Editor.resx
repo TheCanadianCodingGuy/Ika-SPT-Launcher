@@ -136,9 +136,6 @@
   <metadata name="se_wait_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>350, 17</value>
   </metadata>
-  <metadata name="deb_pause_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>183, 17</value>
-  </metadata>
   <data name="deb_pause_info_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAA
@@ -151,6 +148,9 @@
         FH/pFknu6QDTsAAAAABJRU5ErkJggg==
 </value>
   </data>
+  <metadata name="deb_pause_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>183, 17</value>
+  </metadata>
   <data name="deb_pause_info_lbl.ToolTip" xml:space="preserve">
     <value>The Ika SPT Launcher shuts down 5 seconds after a successful run.
 Check this if you want the application to wait for user input before closing if there are applications
@@ -158,9 +158,6 @@ that are not found by the launcher.
 
 DEFAULT: No/Unchecked</value>
   </data>
-  <metadata name="se_local_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>650, 17</value>
-  </metadata>
   <data name="se_local_info_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAA
@@ -173,11 +170,11 @@ DEFAULT: No/Unchecked</value>
         FH/pFknu6QDTsAAAAABJRU5ErkJggg==
 </value>
   </data>
+  <metadata name="se_local_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>650, 17</value>
+  </metadata>
   <metadata name="getFile_dia.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>628, 54</value>
-  </metadata>
-  <metadata name="le_path_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 54</value>
   </metadata>
   <data name="le_path_info_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -191,8 +188,8 @@ DEFAULT: No/Unchecked</value>
         FH/pFknu6QDTsAAAAABJRU5ErkJggg==
 </value>
   </data>
-  <metadata name="se_erase_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>292, 54</value>
+  <metadata name="le_path_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 54</value>
   </metadata>
   <data name="se_erase_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -205,8 +202,8 @@ DEFAULT: No/Unchecked</value>
         vd3fjOMCKs9rEM4UHtDAtAZO+pZtZqG/RV9zGDcIonchh7XBxbJdmxNKHddICrAAAAAASUVORK5CYII=
 </value>
   </data>
-  <metadata name="se_path_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>499, 17</value>
+  <metadata name="se_erase_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>292, 54</value>
   </metadata>
   <data name="se_path_info_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -220,8 +217,8 @@ DEFAULT: No/Unchecked</value>
         FH/pFknu6QDTsAAAAABJRU5ErkJggg==
 </value>
   </data>
-  <metadata name="le_erase_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>166, 54</value>
+  <metadata name="se_path_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>499, 17</value>
   </metadata>
   <data name="le_erase_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -234,11 +231,11 @@ DEFAULT: No/Unchecked</value>
         vd3fjOMCKs9rEM4UHtDAtAZO+pZtZqG/RV9zGDcIonchh7XBxbJdmxNKHddICrAAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="le_erase_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>166, 54</value>
+  </metadata>
   <metadata name="imgList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>420, 54</value>
-  </metadata>
-  <metadata name="ea_section_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
   </metadata>
   <data name="ea_section_info_lbl.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -252,27 +249,20 @@ DEFAULT: No/Unchecked</value>
         FH/pFknu6QDTsAAAAABJRU5ErkJggg==
 </value>
   </data>
-  <metadata name="se_erase_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>292, 54</value>
-  </metadata>
-  <metadata name="le_erase_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>166, 54</value>
-  </metadata>
-  <metadata name="le_path_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 54</value>
-  </metadata>
-  <metadata name="se_local_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>650, 17</value>
-  </metadata>
-  <metadata name="se_path_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>499, 17</value>
-  </metadata>
-  <metadata name="deb_pause_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>183, 17</value>
-  </metadata>
   <metadata name="ea_section_info_lbl_tt.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="ea_section_info_lbl.ToolTip" xml:space="preserve">
+    <value>Applications to start along with SPT Launcher and/or Server.
+You can also select if you want them to start minimized or not.
+
+Launch Order:
+- Server (if local)
+- Launcher
+- Applications in the list from top to bottom
+
+DEFAULT: None</value>
+  </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAkAEBAAAAEAIABoBAAAlgAAABgYAAABACAAiAkAAP4EAAAgIAAAAQAgAKgQAACGDgAAMDAAAAEA

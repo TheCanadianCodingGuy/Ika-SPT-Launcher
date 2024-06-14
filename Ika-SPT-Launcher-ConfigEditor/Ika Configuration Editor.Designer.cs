@@ -470,7 +470,7 @@
             ea_section_info_lbl.Size = new Size(16, 16);
             ea_section_info_lbl.TabIndex = 22;
             ea_section_info_lbl.Text = " ";
-            ea_section_info_lbl_tt.SetToolTip(ea_section_info_lbl, "Applications to start along with SPT Launcher and/or Server.\nYou can also select if you want them to start minimized or not.\n\nLaunch Order:\n- Server (if local)\n- Launcher\n- Applications in the list from top to bottom\n\nDEFAULT: None");
+            ea_section_info_lbl_tt.SetToolTip(ea_section_info_lbl, resources.GetString("ea_section_info_lbl.ToolTip"));
             // 
             // form_reset_btn
             // 
