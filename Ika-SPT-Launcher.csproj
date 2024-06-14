@@ -1,45 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>Ika_SPT_Launcher</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <ApplicationIcon>appicon.ico</ApplicationIcon>
-    <Version>1.1.0</Version>
-    <Authors>Ikaras</Authors>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Ika_SPT_Launcher</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<ApplicationIcon>appicon.ico</ApplicationIcon>
+		<Version>1.1.0</Version>
+		<Authors>Ikaras</Authors>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>full</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>full</DebugType>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>full</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>full</DebugType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="ConfigHandler\**" />
-    <Compile Remove="Ika-SPT-Launcher-ConfigEditor\**" />
-    <EmbeddedResource Remove="ConfigHandler\**" />
-    <EmbeddedResource Remove="Ika-SPT-Launcher-ConfigEditor\**" />
-    <None Remove="ConfigHandler\**" />
-    <None Remove="Ika-SPT-Launcher-ConfigEditor\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="ConfigHandler\**" />
+		<Compile Remove="Ika-SPT-Launcher-ConfigEditor\**" />
+		<EmbeddedResource Remove="ConfigHandler\**" />
+		<EmbeddedResource Remove="Ika-SPT-Launcher-ConfigEditor\**" />
+		<None Remove="ConfigHandler\**" />
+		<None Remove="Ika-SPT-Launcher-ConfigEditor\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="appicon.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="appicon.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="ConfigHandler\ConfigHandler.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="ConfigHandler\ConfigHandler.csproj" />
+	</ItemGroup>
 
 </Project>
